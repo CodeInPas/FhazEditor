@@ -1,10 +1,9 @@
 # FhazEditor
 Built natively with Lazarus/FPC — blazingly fast, minimal footprint, 100% bloatware-free.
 
+<img width="1363" height="684" alt="sseditor" src="https://github.com/user-attachments/assets/137bd27b-b4c9-4ce0-9740-edf89f1a7207" />
 
 
-
-# <Project-Name>
 
 > **Blazingly fast, lightweight, and bloatware-free desktop application.**
 
