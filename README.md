@@ -31,10 +31,22 @@ Built natively using **Lazarus & Free Pascal Compiler (FPC)**, `FhazEditor` deli
 ---
 
 
-
 - **Language / Environment**: Object Pascal / [Free Pascal Compiler (FPC)](https://www.freepascal.org/) (>= 3.2.x)
 - **IDE**: [Lazarus](https://www.lazarus-ide.org/) (>= 3.x / LCL)
 - **Target OS**: Windows (x86_64), Linux (GTK2 / Qt5 / Qt6)
 - **External Dependencies**: None (Self-contained binary)
 
-Download Release Here : https://github.com/CodeInPas/FhazEditor/releases/tag/release01 
+## Download 
+Fresh Release Here : https://github.com/CodeInPas/FhazEditor/releases/tag/release01 
+
+## ☕ Support the Project
+
+If you find **FhazEditor** helpful and want to support its ongoing development, consider buying me a coffee or sending a tip. Any support is deeply appreciated!
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Buy%20Me%20a%20Coffee-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://Ko-fi.com/ainovasinusantara)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/KangOz)
+
+> **💡 Your support keeps the momentum going!**  
+> Every contribution directly fuels my passion, energy, and motivation to continuously build, maintain, and release even more useful open-source desktop applications for the developer community.
+
+
