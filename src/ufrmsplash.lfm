@@ -1,0 +1,53 @@
+object frmSplash: TfrmSplash
+  Left = 500
+  Height = 250
+  Top = 250
+  Width = 400
+  BorderStyle = bsNone
+  Caption = 'S.s Editor'
+  ClientHeight = 250
+  ClientWidth = 400
+  Color = 2105376
+  Font.Color = clWhite
+  Position = poScreenCenter
+  LCLVersion = '4.8.0.0'
+  OnPaint = FormPaint
+  object lblTitle: TLabel
+    Left = 0
+    Height = 45
+    Top = 80
+    Width = 400
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'FhazEditor'
+    Font.Color = clWhite
+    Font.Height = -35
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object lblVersion: TLabel
+    Left = 0
+    Height = 20
+    Top = 130
+    Width = 400
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Zero-Bloat Native IDE'
+    Font.Color = 10066329
+    Font.Height = -13
+    ParentColor = False
+    ParentFont = False
+  end
+  object lblLoading: TLabel
+    Left = 15
+    Height = 13
+    Top = 215
+    Width = 128
+    Caption = 'Memuat modul memori...'
+    Font.Color = clSilver
+    Font.Height = -11
+    ParentColor = False
+    ParentFont = False
+  end
+end

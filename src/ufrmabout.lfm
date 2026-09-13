@@ -1,0 +1,58 @@
+object frmAbout: TfrmAbout
+  Left = 400
+  Height = 220
+  Top = 200
+  Width = 350
+  BorderStyle = bsDialog
+  Caption = 'About S.s Editor'
+  ClientHeight = 220
+  ClientWidth = 350
+  Position = poMainFormCenter
+  LCLVersion = '4.8.0.0'
+  OnCreate = FormCreate
+  OnPaint = FormPaint
+  object lblTitle: TLabel
+    Left = 0
+    Height = 40
+    Top = 30
+    Width = 350
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'FhazEditor'
+    Font.Height = -29
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblVersion: TLabel
+    Left = 0
+    Height = 20
+    Top = 75
+    Width = 350
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Version 1.0 (Zero-Bloat Native IDE)'
+    Font.Height = -13
+    ParentFont = False
+  end
+  object lblDesc: TLabel
+    Left = 20
+    Height = 50
+    Top = 110
+    Width = 310
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Built natively with Lazarus FPC.'#13#10'Blazingly fast, minimal memory footprint,'#13#10'and 100% bloatware-free.'
+    ParentFont = False
+    WordWrap = True
+  end
+  object btnClose: TButton
+    Left = 135
+    Height = 30
+    Top = 170
+    Width = 80
+    Caption = 'OK'
+    Default = True
+    TabOrder = 0
+    OnClick = btnCloseClick
+  end
+end

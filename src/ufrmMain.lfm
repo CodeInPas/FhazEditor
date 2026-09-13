@@ -1,0 +1,565 @@
+object frmMain: TfrmMain
+  Left = 350
+  Height = 600
+  Top = 150
+  Width = 800
+  Caption = 'S.s'
+  ClientHeight = 600
+  ClientWidth = 800
+  Menu = MainMenu1
+  Position = poScreenCenter
+  LCLVersion = '4.8.0.0'
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlSidebar: TPanel
+    Left = 0
+    Height = 420
+    Top = 0
+    Width = 200
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 420
+    ClientWidth = 200
+    TabOrder = 1
+    Visible = False
+    object tvExplorer: TTreeView
+      Left = 0
+      Height = 390
+      Top = 0
+      Width = 200
+      Align = alClient
+      BorderStyle = bsNone
+      Indent = 19
+      PopupMenu = popExplorer
+      ReadOnly = True
+      RightClickSelect = True
+      RowSelect = True
+      TabOrder = 0
+      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoRowSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+      OnDblClick = tvExplorerDblClick
+      OnExpanding = tvExplorerExpanding
+    end
+    object pnlSearch: TPanel
+      Left = 0
+      Height = 30
+      Top = 390
+      Width = 200
+      Align = alBottom
+      BevelOuter = bvNone
+      ClientHeight = 30
+      ClientWidth = 200
+      TabOrder = 1
+      object edtSearchExplorer: TEdit
+        Left = 5
+        Height = 20
+        Top = 5
+        Width = 190
+        Align = alClient
+        BorderSpacing.Around = 5
+        TabOrder = 0
+        TextHint = 'Cari file... (Tekan Enter)'
+        OnChange = edtSearchExplorerChange
+        OnKeyDown = edtSearchExplorerKeyDown
+      end
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 200
+    Height = 420
+    Top = 0
+    Width = 5
+    Visible = False
+  end
+  object PageControl1: TPageControl
+    Left = 205
+    Height = 420
+    Top = 0
+    Width = 145
+    Align = alClient
+    TabOrder = 0
+    OnChange = PageControlChange
+  end
+  object Splitter4: TSplitter
+    Left = 350
+    Height = 420
+    Top = 0
+    Width = 5
+    Align = alRight
+    ResizeAnchor = akRight
+    Visible = False
+  end
+  object PageControl2: TPageControl
+    Left = 355
+    Height = 420
+    Top = 0
+    Width = 290
+    Align = alRight
+    TabOrder = 5
+    Visible = False
+    OnChange = PageControlChange
+  end
+  object Splitter2: TSplitter
+    Left = 645
+    Height = 420
+    Top = 0
+    Width = 5
+    Align = alRight
+    ResizeAnchor = akRight
+    Visible = False
+  end
+  object pnlMinimap: TPanel
+    Left = 650
+    Height = 420
+    Top = 0
+    Width = 150
+    Align = alRight
+    BevelOuter = bvNone
+    TabOrder = 3
+    Visible = False
+  end
+  object Splitter3: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 5
+    Top = 420
+    Width = 800
+    Align = alBottom
+    ResizeAnchor = akBottom
+    Visible = False
+  end
+  object pnlBottomResults: TPanel
+    Left = 0
+    Height = 150
+    Top = 425
+    Width = 800
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 150
+    ClientWidth = 800
+    TabOrder = 4
+    Visible = False
+    object pnlResultsHeader: TPanel
+      Left = 0
+      Height = 25
+      Top = 0
+      Width = 800
+      Align = alTop
+      Alignment = taLeftJustify
+      BevelOuter = bvNone
+      Caption = '  Output / Search Results'
+      ClientHeight = 25
+      ClientWidth = 800
+      Color = clBtnFace
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 0
+      object btnCloseResults: TButton
+        Left = 770
+        Height = 25
+        Top = 0
+        Width = 30
+        Align = alRight
+        Caption = 'X'
+        TabOrder = 0
+        OnClick = btnCloseResultsClick
+      end
+    end
+    object lbSearchResults: TListBox
+      Left = 0
+      Height = 125
+      Top = 25
+      Width = 800
+      Align = alClient
+      ItemHeight = 0
+      TabOrder = 1
+      OnDblClick = lbSearchResultsDblClick
+    end
+  end
+  object pnlStatus: TPanel
+    Left = 0
+    Height = 25
+    Top = 575
+    Width = 800
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 25
+    ClientWidth = 800
+    TabOrder = 2
+    object lblStats: TLabel
+      Left = 0
+      Height = 25
+      Top = 0
+      Width = 106
+      Align = alLeft
+      Caption = ' Words: 0  |  Chars: 0'
+      Layout = tlCenter
+    end
+    object lblCaretPos: TLabel
+      Left = 718
+      Height = 25
+      Top = 0
+      Width = 82
+      Align = alRight
+      Alignment = taRightJustify
+      Caption = 'Line: 1  |  Col: 1 '
+      Layout = tlCenter
+    end
+  end
+  object MainMenu1: TMainMenu
+    Left = 40
+    Top = 40
+    object mnuFile: TMenuItem
+      Caption = '&File'
+      object mnuNew: TMenuItem
+        Caption = '&New'
+        ShortCut = 16462
+        OnClick = mnuNewClick
+      end
+      object mnuOpen: TMenuItem
+        Caption = '&Open...'
+        ShortCut = 16463
+        OnClick = mnuOpenClick
+      end
+      object mnuOpenFolder: TMenuItem
+        Caption = 'Open &Folder...'
+        ShortCut = 24655
+        OnClick = mnuOpenFolderClick
+      end
+      object mnuRecentFiles: TMenuItem
+        Caption = 'Open &Recent'
+      end
+      object MenuItem7: TMenuItem
+        Caption = '-'
+      end
+      object mnuSave: TMenuItem
+        Caption = '&Save'
+        ShortCut = 16467
+        OnClick = mnuSaveClick
+      end
+      object mnuSaveAs: TMenuItem
+        Caption = 'Save &As...'
+        ShortCut = 24659
+        OnClick = mnuSaveAsClick
+      end
+      object mnuCloseTab: TMenuItem
+        Caption = 'Close Tab'
+        ShortCut = 16471
+        OnClick = mnuCloseTabClick
+      end
+      object MenuItem8: TMenuItem
+        Caption = '-'
+      end
+      object mnuExit: TMenuItem
+        Caption = 'E&xit'
+        ShortCut = 32883
+        OnClick = mnuExitClick
+      end
+    end
+    object mnuEdit: TMenuItem
+      Caption = '&Edit'
+      object mnuUndo: TMenuItem
+        Caption = '&Undo'
+        ShortCut = 16474
+        OnClick = mnuUndoClick
+      end
+      object mnuRedo: TMenuItem
+        Caption = '&Redo'
+        ShortCut = 24666
+        OnClick = mnuRedoClick
+      end
+      object MenuItem6: TMenuItem
+        Caption = '-'
+      end
+      object mnuFind: TMenuItem
+        Caption = '&Find...'
+        ShortCut = 16454
+        OnClick = mnuFindClick
+      end
+      object mnuFindInFiles: TMenuItem
+        Caption = 'Find in Files...'
+        ShortCut = 24646
+        OnClick = mnuFindInFilesClick
+      end
+      object mnuReplace: TMenuItem
+        Caption = '&Replace...'
+        ShortCut = 16466
+        OnClick = mnuReplaceClick
+      end
+    end
+    object mnuView: TMenuItem
+      Caption = '&View'
+      object mnuToggleSidebar: TMenuItem
+        Caption = 'Toggle &Explorer Sidebar'
+        ShortCut = 16450
+        OnClick = mnuToggleSidebarClick
+      end
+      object mnuToggleMinimap: TMenuItem
+        Caption = 'Toggle Code &Minimap'
+        ShortCut = 16461
+        OnClick = mnuToggleMinimapClick
+      end
+      object MenuItem5: TMenuItem
+        Caption = '-'
+      end
+      object mnuToggleSplitView: TMenuItem
+        Caption = 'Toggle &Split View'
+        ShortCut = 24652
+        OnClick = mnuToggleSplitViewClick
+      end
+      object mnuMoveTabOtherPane: TMenuItem
+        Caption = '&Move Tab to Other Pane'
+        ShortCut = 24615
+        OnClick = mnuMoveTabOtherPaneClick
+      end
+      object MenuItem16: TMenuItem
+        Caption = '-'
+      end
+      object mnuDistractionFree: TMenuItem
+        Caption = '&Distraction Free Mode'
+        ShortCut = 122
+        OnClick = mnuDistractionFreeClick
+      end
+      object mnuPreferences: TMenuItem
+        Caption = '&Preferences...'
+        OnClick = mnuPreferencesClick
+      end
+      object MenuItem10: TMenuItem
+        Caption = '-'
+      end
+      object mnuFontQuality: TMenuItem
+        Caption = 'Font Quality (Rendering)'
+        object mnuFQClearType: TMenuItem
+          AutoCheck = True
+          Caption = 'ClearType (Best for LCD)'
+          Checked = True
+          GroupIndex = 2
+          RadioItem = True
+          OnClick = mnuFontQualityClick
+        end
+        object mnuFQAntialiased: TMenuItem
+          AutoCheck = True
+          Caption = 'Antialiased (Smooth)'
+          GroupIndex = 2
+          RadioItem = True
+          OnClick = mnuFontQualityClick
+        end
+        object mnuFQDefault: TMenuItem
+          AutoCheck = True
+          Caption = 'Default / Draft'
+          GroupIndex = 2
+          RadioItem = True
+          OnClick = mnuFontQualityClick
+        end
+      end
+      object MenuItem9: TMenuItem
+        Caption = '-'
+      end
+      object mnuSyntax: TMenuItem
+        Caption = 'Syntax Highlighting'
+        object mnuSynNone: TMenuItem
+          AutoCheck = True
+          Caption = 'None (Plain Text)'
+          Checked = True
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynPas: TMenuItem
+          AutoCheck = True
+          Caption = 'Pascal / Delphi'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynHTML: TMenuItem
+          AutoCheck = True
+          Caption = 'HTML'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynXML: TMenuItem
+          AutoCheck = True
+          Caption = 'XML / LFM'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynJS: TMenuItem
+          AutoCheck = True
+          Caption = 'JavaScript'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynCSS: TMenuItem
+          AutoCheck = True
+          Caption = 'CSS'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynPython: TMenuItem
+          AutoCheck = True
+          Caption = 'Python'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+        object mnuSynSQL: TMenuItem
+          AutoCheck = True
+          Caption = 'SQL'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnuSyntaxChangeClick
+        end
+      end
+    end
+    object mnuRunMenu: TMenuItem
+      Caption = '&Run'
+      object mnuRunCode: TMenuItem
+        Caption = 'Run &Code'
+        ShortCut = 116
+        OnClick = mnuRunCodeClick
+      end
+      object MenuItem17: TMenuItem
+        Caption = '-'
+      end
+      object mnuCompilerSettings: TMenuItem
+        Caption = 'Compiler &Settings...'
+        OnClick = mnuCompilerSettingsClick
+      end
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Feature'
+      object mnFocusMode: TMenuItem
+        AutoCheck = True
+        Caption = 'Focus Mode'
+        OnClick = mnFocusModeClick
+      end
+    end
+    object mnuHelp: TMenuItem
+      Caption = '&Help'
+      object mnuAbout: TMenuItem
+        Caption = '&About FhazEditor'
+        OnClick = mnuAboutClick
+      end
+    end
+  end
+  object popEditor: TPopupMenu
+    Left = 112
+    Top = 100
+    object popUndo: TMenuItem
+      Caption = 'Undo'
+      ShortCut = 16474
+      OnClick = mnuUndoClick
+    end
+    object popRedo: TMenuItem
+      Caption = 'Redo'
+      ShortCut = 24666
+      OnClick = mnuRedoClick
+    end
+    object MenuItem11: TMenuItem
+      Caption = '-'
+    end
+    object popCut: TMenuItem
+      Caption = 'Cut'
+      ShortCut = 16472
+      OnClick = popCutClick
+    end
+    object popCopy: TMenuItem
+      Caption = 'Copy'
+      ShortCut = 16451
+      OnClick = popCopyClick
+    end
+    object popPaste: TMenuItem
+      Caption = 'Paste'
+      ShortCut = 16470
+      OnClick = popPasteClick
+    end
+    object popDelete: TMenuItem
+      Caption = 'Delete'
+      ShortCut = 46
+      OnClick = popDeleteClick
+    end
+    object MenuItem12: TMenuItem
+      Caption = '-'
+    end
+    object popSelectAll: TMenuItem
+      Caption = 'Select All'
+      ShortCut = 16449
+      OnClick = popSelectAllClick
+    end
+  end
+  object popExplorer: TPopupMenu
+    Left = 112
+    Top = 160
+    object popExpOpen: TMenuItem
+      Caption = 'Open'
+      Default = True
+      OnClick = popExpOpenClick
+    end
+    object MenuItem13: TMenuItem
+      Caption = '-'
+    end
+    object popExpNewFile: TMenuItem
+      Caption = 'New File...'
+      OnClick = popExpNewFileClick
+    end
+    object popExpNewFolder: TMenuItem
+      Caption = 'New Folder...'
+      OnClick = popExpNewFolderClick
+    end
+    object MenuItem14: TMenuItem
+      Caption = '-'
+    end
+    object popExpRename: TMenuItem
+      Caption = 'Rename...'
+      OnClick = popExpRenameClick
+    end
+    object popExpDeleteItem: TMenuItem
+      Caption = 'Delete'
+      OnClick = popExpDeleteClick
+    end
+    object MenuItem15: TMenuItem
+      Caption = '-'
+    end
+    object popExpRefresh: TMenuItem
+      Caption = 'Refresh'
+      OnClick = popExpRefreshClick
+    end
+  end
+  object dlgOpen: TOpenDialog
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Left = 112
+    Top = 40
+  end
+  object dlgSave: TSaveDialog
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Left = 184
+    Top = 40
+  end
+  object dlgFind: TFindDialog
+    Options = [frDown, frHideMatchCase, frHideWholeWord, frHideUpDown]
+    OnFind = dlgFindFind
+    Left = 256
+    Top = 40
+  end
+  object dlgReplace: TReplaceDialog
+    Options = [frDown, frHideMatchCase, frHideWholeWord, frHideUpDown]
+    OnReplace = dlgReplaceReplace
+    Left = 328
+    Top = 40
+  end
+  object dlgSelectDirectory: TSelectDirectoryDialog
+    Left = 400
+    Top = 40
+  end
+  object tmrUIUpdate: TTimer
+    Interval = 500
+    OnTimer = tmrUIUpdateTimer
+    Left = 472
+    Top = 40
+  end
+end

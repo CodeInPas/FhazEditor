@@ -1,0 +1,99 @@
+object frmRunnerSettings: TfrmRunnerSettings
+  Left = 450
+  Height = 400
+  Top = 200
+  Width = 600
+  BorderStyle = bsDialog
+  Caption = 'Compiler & Interpreter Settings'
+  ClientHeight = 400
+  ClientWidth = 600
+  Position = poMainFormCenter
+  LCLVersion = '4.8.0.0'
+  OnCreate = FormCreate
+  object pnlTop: TPanel
+    Left = 0
+    Height = 60
+    Top = 0
+    Width = 600
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 60
+    ClientWidth = 600
+    TabOrder = 0
+    object btnAdd: TButton
+      Left = 10
+      Height = 30
+      Top = 15
+      Width = 100
+      Caption = '+ Tambah'
+      TabOrder = 0
+      OnClick = btnAddClick
+    end
+    object btnDelete: TButton
+      Left = 120
+      Height = 30
+      Top = 15
+      Width = 100
+      Caption = '- Hapus Baris'
+      TabOrder = 1
+      OnClick = btnDeleteClick
+    end
+    object lblInfo: TLabel
+      Left = 240
+      Height = 45
+      Top = 8
+      Width = 350
+      AutoSize = False
+      Caption = 'Variabel Macro:'#13#10'%f = Alamat lengkap file (Contoh: C:\Proyek\main.py)'#13#10'%n = Nama file tanpa ekstensi (Contoh: main)'
+      WordWrap = True
+    end
+  end
+  object sgRunners: TStringGrid
+    Left = 10
+    Height = 270
+    Top = 70
+    Width = 580
+    Align = alClient
+    BorderSpacing.Around = 10
+    ColCount = 2
+    DefaultRowHeight = 24
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goSmoothScroll]
+    RowCount = 2
+    TabOrder = 1
+    ColWidths = (
+      120
+      430
+    )
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 50
+    Top = 350
+    Width = 600
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 50
+    ClientWidth = 600
+    TabOrder = 2
+    object btnSave: TButton
+      Left = 400
+      Height = 30
+      Top = 10
+      Width = 90
+      Caption = 'Simpan'
+      Default = True
+      TabOrder = 0
+      OnClick = btnSaveClick
+    end
+    object btnCancel: TButton
+      Left = 500
+      Height = 30
+      Top = 10
+      Width = 90
+      Cancel = True
+      Caption = 'Batal'
+      TabOrder = 1
+      OnClick = btnCancelClick
+    end
+  end
+end
