@@ -37,3 +37,4 @@ Built natively using **Lazarus & Free Pascal Compiler (FPC)**, `FhazEditor` deli
 - **Target OS**: Windows (x86_64), Linux (GTK2 / Qt5 / Qt6)
 - **External Dependencies**: None (Self-contained binary)
 
+Download Release Here : https://github.com/CodeInPas/FhazEditor/releases/tag/release01 
