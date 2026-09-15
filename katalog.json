@@ -1,0 +1,13 @@
+{
+  "catalog": [
+    {
+      "id": "app-01",
+      "name": "FhazEditor",
+      "description": "FhazEditor::Ringan dan Responsif",
+      "version": "1.0.0",
+      "url": "https://github.com/CodeInPas/FhazEditor/releases/download/release01/FhazEditor.zip",
+      "icon": "",
+      "executable": "FhazEditor.exe"
+    }
+  ]
+}
