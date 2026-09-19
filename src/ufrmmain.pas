@@ -11,7 +11,7 @@ uses
   SynHighlighterPas, SynHighlighterHTML, SynHighlighterXML,
   SynHighlighterJScript, SynHighlighterCss, SynHighlighterPython, SynHighlighterSQL,
   SynCompletion, LCLType, Types, ufrmAbout,
-  Process, LCLIntf, IniFiles, ufrmRunnerSettings; // TAMBAHAN UNIT RUNNER
+  Process, LCLIntf, IniFiles, ufrmRunnerSettings;
 
 type
   { TfrmMain: Jendela Editor Utama }
@@ -64,7 +64,6 @@ type
     mnuFQAntialiased: TMenuItem;
     mnuFQDefault: TMenuItem;
 
-    // Menu Run Code
     mnuRunMenu: TMenuItem;
     mnuRunCode: TMenuItem;
     MenuItem17: TMenuItem;
@@ -130,7 +129,7 @@ type
     popExpRefresh: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
-    procedure FormDropFiles(Sender: TObject; const FileNames: array of string); // <-- TAMBAHKAN BARIS INI
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 
@@ -230,7 +229,8 @@ type
     procedure MinimapSpecialLineColors(Sender: TObject; Line: integer; var Special: boolean; var FG, BG: TColor);
     procedure MinimapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 
-    procedure UpdateAutoCompletion(ASynEdit: TSynEdit);
+    // FITUR BARU: Event Autocomplete Dinamis
+    procedure SynCompletionExecute(Sender: TObject);
 
     function GetEditorFromTab(ATab: TTabSheet): TSynEdit;
     function FindTabByFileName(const AFileName: string): TTabSheet;
@@ -298,6 +298,10 @@ begin
 
   InitExplorerIcons;
 
+  // Buat folder 'autocomplete' secara otomatis jika belum ada!
+  if not DirectoryExists(ExtractFilePath(Application.ExeName) + 'autocomplete') then
+    CreateDir(ExtractFilePath(Application.ExeName) + 'autocomplete');
+
   synMinimap := TSynEdit.Create(Self);
   synMinimap.Parent := pnlMinimap;
   synMinimap.Align := alClient;
@@ -341,7 +345,6 @@ begin
   AllowDropFiles := True;
   OnDropFiles := @FormDropFiles;
   // ==============================================================
-
 
   CalculateStats;
 end;
@@ -458,6 +461,11 @@ begin
     else if Ext = '.py' then CmdTemplate := 'python "%f"'
     else if Ext = '.js' then CmdTemplate := 'node "%f"'
     else if (Ext = '.pas') or (Ext = '.pp') then CmdTemplate := 'fpc "%f" && "%n"'
+    else if Ext = '.java' then CmdTemplate := 'java "%f"'
+    else if Ext = '.lua' then CmdTemplate := 'lua "%f"'
+    else if Ext = '.rb' then CmdTemplate := 'ruby "%f"'
+    else if Ext = '.jl' then CmdTemplate := 'julia "%f"'
+    else if Ext = '.scala' then CmdTemplate := 'scala "%f"'
     else
     begin
       ShowMessage('Tidak ada konfigurasi kompiler/eksekutor untuk ekstensi ' + Ext +
@@ -1338,76 +1346,80 @@ begin
 end;
 
 // ==========================================
-// Logika Multi-Tab Dinamis & Auto-Completion
+// Logika Multi-Tab Dinamis & Autocomplete Super Cerdas
 // ==========================================
 
-procedure TfrmMain.UpdateAutoCompletion(ASynEdit: TSynEdit);
+procedure TfrmMain.SynCompletionExecute(Sender: TObject);
 var
-  i: Integer;
   Comp: TSynCompletion;
-  Tab: TTabSheet;
+  Editor: TSynEdit;
+  S, WordStr: string;
+  i, Len: Integer;
+  TempList: TStringList;
+  DictPath, Ext: string;
 begin
-  if not Assigned(ASynEdit) or not (ASynEdit.Parent is TTabSheet) then Exit;
-  Tab := TTabSheet(ASynEdit.Parent);
-  Comp := nil;
+  if not (Sender is TSynCompletion) then Exit;
+  Comp := TSynCompletion(Sender);
+  Editor := TSynEdit(Comp.Editor);
+  if not Assigned(Editor) then Exit;
 
-  for i := 0 to Tab.ComponentCount - 1 do
-  begin
-    if Tab.Components[i] is TSynCompletion then
-    begin
-      Comp := TSynCompletion(Tab.Components[i]);
-      Break;
-    end;
-  end;
-
-  if not Assigned(Comp) then Exit;
-
-  Comp.ItemList.BeginUpdate;
+  // Gunakan TempList yang bersifat Sorted & dupIgnore agar Instan
+  // memfilter ribuan kata duplikat dalam dokumen!
+  TempList := TStringList.Create;
   try
-    Comp.ItemList.Clear;
+    TempList.Sorted := True;
+    TempList.Duplicates := dupIgnore;
 
-    if ASynEdit.Highlighter = FSynPas then
-    begin
-      Comp.ItemList.Add('begin'); Comp.ItemList.Add('class'); Comp.ItemList.Add('const');
-      Comp.ItemList.Add('constructor'); Comp.ItemList.Add('destructor'); Comp.ItemList.Add('do');
-      Comp.ItemList.Add('else'); Comp.ItemList.Add('end;'); Comp.ItemList.Add('for');
-      Comp.ItemList.Add('function'); Comp.ItemList.Add('if'); Comp.ItemList.Add('implementation');
-      Comp.ItemList.Add('interface'); Comp.ItemList.Add('procedure'); Comp.ItemList.Add('repeat');
-      Comp.ItemList.Add('string'); Comp.ItemList.Add('then'); Comp.ItemList.Add('try');
-      Comp.ItemList.Add('type'); Comp.ItemList.Add('until'); Comp.ItemList.Add('uses');
-      Comp.ItemList.Add('var'); Comp.ItemList.Add('while');
-    end
-    else if ASynEdit.Highlighter = FSynHTML then
-    begin
-      Comp.ItemList.Add('<html>'); Comp.ItemList.Add('<head>'); Comp.ItemList.Add('<title>');
-      Comp.ItemList.Add('<body>'); Comp.ItemList.Add('<div>'); Comp.ItemList.Add('<span>');
-      Comp.ItemList.Add('<a href="">'); Comp.ItemList.Add('<img>'); Comp.ItemList.Add('<table>');
-      Comp.ItemList.Add('<tr>'); Comp.ItemList.Add('<td>'); Comp.ItemList.Add('<script>');
-      Comp.ItemList.Add('<style>');
-    end
-    else if ASynEdit.Highlighter = FSynJS then
-    begin
-      Comp.ItemList.Add('function'); Comp.ItemList.Add('const'); Comp.ItemList.Add('let');
-      Comp.ItemList.Add('var'); Comp.ItemList.Add('if'); Comp.ItemList.Add('else');
-      Comp.ItemList.Add('for'); Comp.ItemList.Add('while'); Comp.ItemList.Add('return');
-      Comp.ItemList.Add('document.getElementById()'); Comp.ItemList.Add('console.log()');
-    end
-    else if ASynEdit.Highlighter = FSynPython then
-    begin
-      Comp.ItemList.Add('def'); Comp.ItemList.Add('class'); Comp.ItemList.Add('import');
-      Comp.ItemList.Add('from'); Comp.ItemList.Add('if'); Comp.ItemList.Add('elif');
-      Comp.ItemList.Add('else'); Comp.ItemList.Add('for'); Comp.ItemList.Add('in');
-      Comp.ItemList.Add('while'); Comp.ItemList.Add('return'); Comp.ItemList.Add('print()');
-      Comp.ItemList.Add('try'); Comp.ItemList.Add('except');
-    end
+    // ----------------------------------------------------
+    // IDE 1: Muat Kamus Eksternal
+    // ----------------------------------------------------
+    Ext := LowerCase(ExtractFileExt(FSessionManager.GetFileName(Editor)));
+    if Ext <> '' then Delete(Ext, 1, 1); // Hapus awalan titik (.py -> py)
+    if Ext = '' then Ext := 'txt';
+
+    DictPath := ExtractFilePath(Application.ExeName) + 'autocomplete' + DirectorySeparator + Ext + '.txt';
+    if FileExists(DictPath) then
+      TempList.LoadFromFile(DictPath)
     else
     begin
-      Comp.ItemList.Add('TODO:');
-      Comp.ItemList.Add('NOTE:');
-      Comp.ItemList.Add('FIXME:');
+      // Fallback Default jika file txt tidak ditemukan
+      if Editor.Highlighter = FSynPas then
+        TempList.CommaText := 'begin,class,const,constructor,destructor,do,else,end,for,function,if,implementation,interface,procedure,repeat,string,then,try,type,until,uses,var,while'
+      else if Editor.Highlighter = FSynPython then
+        TempList.CommaText := 'def,class,import,from,if,elif,else,for,in,while,return,print,try,except'
+      else if Editor.Highlighter = FSynJS then
+        TempList.CommaText := 'function,const,let,var,if,else,for,while,return,document,console';
+    end;
+
+    // ----------------------------------------------------
+    // IDE 2: Parser Variabel di Layar Secara Real-Time
+    // ----------------------------------------------------
+    S := Editor.Text;
+    Len := Length(S);
+    WordStr := '';
+    for i := 1 to Len do
+    begin
+      // Jika karakter adalah huruf, angka, atau underscore
+      if S[i] in ['a'..'z', 'A'..'Z', '0'..'9', '_'] then
+        WordStr := WordStr + S[i]
+      else
+      begin
+        // Masukkan kata jika panjangnya >= 3 karakter
+        if Length(WordStr) >= 3 then TempList.Add(WordStr);
+        WordStr := '';
+      end;
+    end;
+    if Length(WordStr) >= 3 then TempList.Add(WordStr); // Tangkap sisa kata terakhir
+
+    // Terapkan gabungan sempurna ini ke layar!
+    Comp.ItemList.BeginUpdate;
+    try
+      Comp.ItemList.Assign(TempList);
+    finally
+      Comp.ItemList.EndUpdate;
     end;
   finally
-    Comp.ItemList.EndUpdate;
+    TempList.Free;
   end;
 end;
 
@@ -1505,7 +1517,6 @@ begin
     ASynEdit.Highlighter := nil;
 
   SyncHighlighterMenu(ASynEdit);
-  UpdateAutoCompletion(ASynEdit);
 end;
 
 procedure TfrmMain.SyncHighlighterMenu(ASynEdit: TSynEdit);
@@ -1542,7 +1553,6 @@ begin
     TMenuItem(Sender).Checked := True;
 
   if pnlMinimap.Visible then SyncMinimap;
-  UpdateAutoCompletion(Editor);
 end;
 
 procedure TfrmMain.mnuFontQualityClick(Sender: TObject);
@@ -1608,9 +1618,11 @@ begin
   if Config.LineEnding = leCRLF then NewEditor.Lines.LineBreak := #13#10 else NewEditor.Lines.LineBreak := #10;
   TVisualTheme.ApplySynEditTheme(NewEditor, Config.Theme);
 
+  // PENYISIPAN KECERDASAN AUTOCOMPLETE DI SINI!
   NewComp := TSynCompletion.Create(NewTab);
   NewComp.Editor := NewEditor;
   NewComp.ShortCut := Menus.ShortCut(VK_SPACE, [ssCtrl]);
+  NewComp.OnExecute := @SynCompletionExecute;
 
   DetectAndApplyHighlighter(NewEditor, AFileName);
 
@@ -1761,7 +1773,7 @@ begin
   TTabSheet(ASynEdit.Parent).Caption := DocName + ModFlag;
 
   if (FActivePageControl <> nil) and (FActivePageControl.ActivePage = ASynEdit.Parent) then
-    Self.Caption := DocName + ModFlag + ' - FhazEditor';
+    Self.Caption := DocName + ModFlag + ' - S.s Editor';
 end;
 
 function TfrmMain.PromptSaveTab(ASynEdit: TSynEdit): Boolean;
@@ -1773,7 +1785,7 @@ begin
   if Assigned(ASynEdit) and ASynEdit.Modified then
   begin
     TabName := TTabSheet(ASynEdit.Parent).Caption;
-    Res := MessageDlg('FhazEditor', 'Simpan perubahan pada "' + TabName + '" ?', mtConfirmation, [mbYes, mbNo, mbCancel], 0);
+    Res := MessageDlg('S.s Editor', 'Simpan perubahan pada "' + TabName + '" ?', mtConfirmation, [mbYes, mbNo, mbCancel], 0);
     case Res of
       mrYes:
         begin
@@ -2002,8 +2014,12 @@ begin
   if frMatchCase in dlgFind.Options then Include(SearchOptions, ssoMatchCase);
   if frWholeWord in dlgFind.Options then Include(SearchOptions, ssoWholeWord);
   if not (frDown in dlgFind.Options) then Include(SearchOptions, ssoBackwards);
+
+  // Tangkap Checkbox "Search entire file"
+  if frEntireScope in dlgFind.Options then Include(SearchOptions, ssoEntireScope);
+
   if Editor.SearchReplace(dlgFind.FindText, '', SearchOptions) = 0 then
-    ShowMessage('Teks tidak ditemukan.');
+    ShowMessage('Pencarian selesai. Teks tidak ditemukan lagi.');
 end;
 
 procedure TfrmMain.dlgReplaceReplace(Sender: TObject);
@@ -2017,11 +2033,24 @@ begin
   SearchOptions := [ssoReplace];
   if frMatchCase in dlgReplace.Options then Include(SearchOptions, ssoMatchCase);
   if frWholeWord in dlgReplace.Options then Include(SearchOptions, ssoWholeWord);
-  if frReplaceAll in dlgReplace.Options then Include(SearchOptions, ssoReplaceAll);
-  if Editor.SearchReplace(dlgReplace.FindText, dlgReplace.ReplaceText, SearchOptions) = 0 then
-    ShowMessage('Teks tidak ditemukan atau sudah diganti semua.');
-end;
+  if not (frDown in dlgReplace.Options) then Include(SearchOptions, ssoBackwards);
 
+  // Tangkap Checkbox "Search entire file"
+  if frEntireScope in dlgReplace.Options then Include(SearchOptions, ssoEntireScope);
+
+  // Jika tombol "Replace All" ditekan
+  if frReplaceAll in dlgReplace.Options then
+  begin
+    Include(SearchOptions, ssoReplaceAll);
+
+    // TRIK JITU: Pindahkan kursor secara paksa ke Baris 1, Kolom 1
+    // agar SynEdit memindai dan mengganti dari awal dokumen tanpa terlewat!
+    Editor.CaretXY := Point(1, 1);
+  end;
+
+  if Editor.SearchReplace(dlgReplace.FindText, dlgReplace.ReplaceText, SearchOptions) = 0 then
+    ShowMessage('Selesai. Teks tidak ditemukan lagi atau sudah diganti semua.');
+end;
 procedure TfrmMain.mnuDistractionFreeClick(Sender: TObject);
 begin
   FDistractionFree := not FDistractionFree;
