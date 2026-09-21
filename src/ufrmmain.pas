@@ -8,15 +8,21 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   StdCtrls, ComCtrls, SynEdit, SynEditSearch, SynEditTypes, SynEditMiscClasses,
   uAppConfig, uVisualOperatorTheme, uSessionManager, ufrmPreferences, uAIAssistant, SynEditMarkupSpecialLine,
-  SynHighlighterPas, SynHighlighterHTML, SynHighlighterXML,
+  SynHighlighterPas, SynHighlighterHTML, SynHighlighterXML,SynHighlighterPHP,SynHighlighterCpp,
   SynHighlighterJScript, SynHighlighterCss, SynHighlighterPython, SynHighlighterSQL,
-  SynCompletion, LCLType, Types, ufrmAbout,
+  SynCompletion, LCLType, Types, ufrmAbout, SynHighlighterAny,
   Process, LCLIntf, IniFiles, ufrmRunnerSettings;
 
 type
   { TfrmMain: Jendela Editor Utama }
   TfrmMain = class(TForm)
     MainMenu1: TMainMenu;
+    MenuItem1: TMenuItem;
+    mnuSynGo: TMenuItem;
+    mnuSynCpp: TMenuItem;
+    mnuSynCS: TMenuItem;
+    mnuSynRust: TMenuItem;
+    mnuSynPHP: TMenuItem;
     mnuFile: TMenuItem;
     mnuNew: TMenuItem;
     mnuOpen: TMenuItem;
@@ -203,8 +209,13 @@ type
     FSynCSS: TSynCssSyn;
     FSynPython: TSynPythonSyn;
     FSynSQL: TSynSQLSyn;
-
+    FSynPHP: TSynPHPSyn;
+    FSynDart : TSynAnySyn;
     FImageList: TImageList;
+    FCppSyn: TSynCppSyn;
+    FSynCSharp: TSynAnySyn;
+    FSynRust: TSynAnySyn;
+    FSynGo: TSynAnySyn;
 
     synMinimap: TSynEdit;
     FMinimapDirty: Boolean;
@@ -258,6 +269,7 @@ type
     procedure OpenFolder(const APath: string);
     procedure PopulateTreeNode(ParentNode: TTreeNode; const Path: string);
     function GetNodePath(Node: TTreeNode): string;
+    procedure SetHightAnySyn;
   public
   end;
 
@@ -282,6 +294,13 @@ begin
   FSynCSS := TSynCssSyn.Create(Self);
   FSynPython := TSynPythonSyn.Create(Self);
   FSynSQL := TSynSQLSyn.Create(Self);
+  FSynPHP := TSynPHPSyn.Create(Self);
+  FCppSyn := TSynCppSyn.Create(self);
+  FSynCSharp := TSynAnySyn.Create(Self);
+  FSynRust := TSynAnySyn.Create(Self);
+  FSynGo := TSynAnySyn.Create(Self);
+
+  SetHightAnySyn;
 
   FSessionManager := TSessionManager.Create;
   FDistractionFree := False;
@@ -1388,7 +1407,19 @@ begin
       else if Editor.Highlighter = FSynPython then
         TempList.CommaText := 'def,class,import,from,if,elif,else,for,in,while,return,print,try,except'
       else if Editor.Highlighter = FSynJS then
-        TempList.CommaText := 'function,const,let,var,if,else,for,while,return,document,console';
+        TempList.CommaText := 'function,const,let,var,if,else,for,while,return,document,console'
+      else if Editor.Highlighter = FSynPHP then
+        TempList.CommaText := 'echo,print,if,else,elseif,for,foreach,while,do,switch,case,break,continue,function,return,class,public,private,protected,static,new,require,include,try,catch,throw'
+      else if Editor.Highlighter = FCppSyn then
+        TempList.CommaText := 'auto,break,case,char,class,const,continue,default,do,double,else,enum,extern,float,for,goto,if,int,long,return,short,signed,sizeof,static,struct,switch,typedef,union,unsigned,void,volatile,while'
+      else if Editor.Highlighter = FSynCSharp then
+        TempList.CommaText := 'abstract,as,base,bool,break,byte,case,catch,char,checked,class,const,continue,decimal,default,delegate,do,double,else,enum,event,explicit,extern,false,finally,fixed,float,for,foreach,goto,if,implicit,in,int,interface,internal,is,lock,long,namespace,new,null,object,operator,out,override,params,private,protected,public,readonly,ref,return,sbyte,sealed,short,sizeof,stackalloc,static,string,struct,switch,this,throw,true,try,typeof,uint,ulong,unchecked,unsafe,ushort,using,virtual,void,volatile,while'
+      else if Editor.Highlighter = FSynRust then
+        TempList.CommaText := 'as,break,const,continue,crate,else,enum,extern,false,fn,for,if,impl,in,let,loop,match,mod,move,mut,pub,ref,return,self,Self,static,struct,super,trait,true,type,unsafe,use,where,while'
+      else if Editor.Highlighter = FSynDart then
+        TempList.CommaText := 'class,extends,implements,Widget,build,return,final,void,async,await'
+      else if Editor.Highlighter = FSynGo then
+        TempList.CommaText := 'break,default,func,interface,select,case,defer,go,map,struct,chan,else,goto,package,switch,const,fallthrough,if,range,type,continue,for,import,return,var';
     end;
 
     // ----------------------------------------------------
@@ -1513,8 +1544,21 @@ begin
     ASynEdit.Highlighter := FSynPython
   else if (Ext = '.sql') then
     ASynEdit.Highlighter := FSynSQL
+  else if (Ext = '.php') or (Ext = '.phtml') then
+    ASynEdit.Highlighter := FSynPHP
+  else if (Ext = '.dart') then
+    ASynEdit.Highlighter := FSynDart
+  else if (Ext = '.cpp') or (Ext = '.c') or (Ext = '.h') or (Ext = '.hpp') or (Ext = '.cxx') then
+    ASynEdit.Highlighter := FCppSyn
+  else if (Ext = '.cs') then
+    ASynEdit.Highlighter := FSynCSharp
+  else if (Ext = '.rs') then
+    ASynEdit.Highlighter := FSynRust
+  else if (Ext = '.go') then
+    ASynEdit.Highlighter := FSynGo
   else
     ASynEdit.Highlighter := nil;
+
 
   SyncHighlighterMenu(ASynEdit);
 end;
@@ -1530,6 +1574,11 @@ begin
   else if ASynEdit.Highlighter = FSynCSS then mnuSynCSS.Checked := True
   else if ASynEdit.Highlighter = FSynPython then mnuSynPython.Checked := True
   else if ASynEdit.Highlighter = FSynSQL then mnuSynSQL.Checked := True
+  else if ASynEdit.Highlighter = FSynPHP then mnuSynPHP.Checked := True
+  else if ASynEdit.Highlighter = FCppSyn then mnuSynCpp.Checked := True
+  else if ASynEdit.Highlighter = FSynCSharp then mnuSynCS.Checked := True
+  else if ASynEdit.Highlighter = FSynRust then mnuSynRust.Checked := True
+  else if ASynEdit.Highlighter = FSynGo then mnuSynGo.Checked := True
   else mnuSynNone.Checked := True;
 end;
 
@@ -1546,7 +1595,12 @@ begin
   else if Sender = mnuSynJS then Editor.Highlighter := FSynJS
   else if Sender = mnuSynCSS then Editor.Highlighter := FSynCSS
   else if Sender = mnuSynPython then Editor.Highlighter := FSynPython
+  else if Sender = mnuSynPHP then Editor.Highlighter := FSynPHP
   else if Sender = mnuSynSQL then Editor.Highlighter := FSynSQL
+  else if Sender = mnuSynCpp then Editor.Highlighter := FCppSyn
+  else if Sender = mnuSynCS then Editor.Highlighter := FSynCSharp
+  else if Sender = mnuSynRust then Editor.Highlighter := FSynRust
+  else if Sender = mnuSynGo then Editor.Highlighter := FSynGo
   else Editor.Highlighter := nil;
 
   if Sender is TMenuItem then
@@ -1713,6 +1767,12 @@ begin
   TVisualTheme.ApplyHighlighterTheme(FSynCSS, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FSynPython, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FSynSQL, Config.Theme);
+  TVisualTheme.ApplyHighlighterTheme(FSynPHP, Config.Theme); // Diterapkan pada Tema
+  TVisualTheme.ApplyHighlighterTheme(FCppSyn, Config.Theme);
+  TVisualTheme.ApplyHighlighterTheme(FSynCSharp, Config.Theme);
+  TVisualTheme.ApplyHighlighterTheme(FSynRust, Config.Theme);
+  TVisualTheme.ApplyHighlighterTheme(FSynGo, Config.Theme);
+  TVisualTheme.ApplyHighlighterTheme(FSynDart, Config.Theme);
 
   for i := 0 to PageControl1.PageCount - 1 do
   begin
@@ -1773,7 +1833,7 @@ begin
   TTabSheet(ASynEdit.Parent).Caption := DocName + ModFlag;
 
   if (FActivePageControl <> nil) and (FActivePageControl.ActivePage = ASynEdit.Parent) then
-    Self.Caption := DocName + ModFlag + ' - S.s Editor';
+    Self.Caption := DocName + ModFlag + ' - FhazEditor';
 end;
 
 function TfrmMain.PromptSaveTab(ASynEdit: TSynEdit): Boolean;
@@ -1785,7 +1845,7 @@ begin
   if Assigned(ASynEdit) and ASynEdit.Modified then
   begin
     TabName := TTabSheet(ASynEdit.Parent).Caption;
-    Res := MessageDlg('S.s Editor', 'Simpan perubahan pada "' + TabName + '" ?', mtConfirmation, [mbYes, mbNo, mbCancel], 0);
+    Res := MessageDlg('FhazEditor', 'Simpan perubahan pada "' + TabName + '" ?', mtConfirmation, [mbYes, mbNo, mbCancel], 0);
     case Res of
       mrYes:
         begin
@@ -2287,6 +2347,61 @@ begin
       OpenFolder(FileNames[i]);
     end;
   end;
+end;
+
+procedure TfrmMain.SetHightAnySyn;
+begin
+  // ==========================================
+  // SETUP CUSTOM HIGHLIGHTER (DART)
+  // ==========================================
+  FSynDart := TSynAnySyn.Create(Self);
+  FSynDart.Name:= 'Dart';
+  // Daftar Keyword Utama Dart
+  FSynDart.KeyWords.CommaText := 'abstract,as,assert,async,await,break,case,catch,class,const,continue,covariant,default,deferred,do,dynamic,else,enum,export,extends,extension,external,factory,false,final,finally,for,Function,get,if,implements,import,in,interface,is,late,library,mixin,new,null,on,operator,part,required,rethrow,return,set,show,static,super,switch,sync,this,throw,true,try,typedef,var,void,while,with,yield';
+  // Daftar Tipe Data / Objek Dart
+  FSynDart.Objects.CommaText := 'String,int,double,bool,num,List,Set,Map,Iterable,Future,Stream,Widget,StatelessWidget,StatefulWidget';
+  // Secara otomatis TSynAnySyn akan mewarnai string ("" atau '') dan komentar (// atau /* */) ala keluarga bahasa C/Java.
+
+  // ==========================================
+  // SETUP CUSTOM HIGHLIGHTER (GOLANG)
+  // ==========================================
+
+  FSynGo := TSynAnySyn.Create(Self);
+  FSynGo.Name := 'Go';
+  // Daftar 25 Keyword Utama Go
+  FSynGo.KeyWords.CommaText := 'break,case,chan,const,continue,default,defer,else,fallthrough,for,func,go,goto,if,import,interface,map,package,range,return,select,struct,switch,type,var';
+  // Daftar Tipe Data Dasar, Konstanta Baku, dan Fungsi Built-in Go
+  FSynGo.Objects.CommaText := 'bool,byte,complex64,complex128,error,float32,float64,int,int8,int16,int32,int64,rune,string,uint,uint8,uint16,uint32,uint64,uintptr,true,false,iota,nil,append,cap,close,complex,copy,delete,imag,len,make,new,panic,print,println,real,recover';
+  // Secara otomatis TSynAnySyn akan mewarnai string ("" atau ``) dan komentar (// atau /* */) ala Go.
+
+  // ==========================================
+  // SETUP CUSTOM HIGHLIGHTER (C#)
+  // ========================================
+
+  FSynCSharp := TSynAnySyn.Create(Self);
+  FSynCSharp.Name := 'CSharp';
+
+  // Daftar Keyword Utama dan Contextual Keyword C#
+  FSynCSharp.KeyWords.CommaText := 'abstract,add,alias,as,async,await,base,break,case,catch,checked,class,const,continue,default,delegate,do,else,enum,event,explicit,extern,false,finally,fixed,for,foreach,get,global,goto,if,implicit,in,interface,internal,is,lock,namespace,new,null,operator,out,override,params,partial,private,protected,public,readonly,ref,remove,return,sealed,set,sizeof,stackalloc,static,struct,switch,this,throw,true,try,typeof,unchecked,unsafe,using,value,var,virtual,void,volatile,where,while,yield';
+
+  // Daftar Tipe Data Primitif dan Objek/Class Umum .NET
+  FSynCSharp.Objects.CommaText := 'bool,byte,char,decimal,double,dynamic,float,int,long,object,sbyte,short,string,uint,ulong,ushort,Console,Exception,Task,Thread,List,Dictionary,IEnumerable,Action,Func,DateTime,Math,Convert';
+
+  // ==========================================
+  // SETUP CUSTOM HIGHLIGHTER (RUST)
+  // ========================================
+
+  FSynRust := TSynAnySyn.Create(Self);
+  FSynRust.Name := 'Rust';
+
+  // Daftar Keyword Utama Rust (termasuk edisi modern 2018+)
+  FSynRust.KeyWords.CommaText := 'as,async,await,break,const,continue,crate,dyn,else,enum,extern,false,fn,for,if,impl,in,let,loop,match,mod,move,mut,pub,ref,return,self,Self,static,struct,super,trait,true,type,unsafe,use,where,while';
+
+  // Daftar Tipe Data Skalar, Tipe Pointer, dan Enum/Struct Standar Bawaan Rust
+  FSynRust.Objects.CommaText := 'bool,char,f32,f64,i8,i16,i32,i64,i128,isize,u8,u16,u32,u64,u128,usize,str,String,Option,Result,Some,None,Ok,Err,Vec,Box,Rc,Arc,Cell,RefCell';
+
+  // TSynAnySyn akan secara otomatis menangani pewarnaan string dan komentar (// atau /* */) ala C/Rust.
+
 end;
 
 end.
