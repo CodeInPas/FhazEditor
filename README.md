@@ -37,7 +37,7 @@ Built natively using **Lazarus & Free Pascal Compiler (FPC)**, `FhazEditor` deli
 - **External Dependencies**: None (Self-contained binary)
 
 ## Download 
-Fresh Release Here : https://github.com/CodeInPas/FhazEditor/releases/tag/release01 
+[Fresh Release Here ](https://github.com/CodeInPas/FhazEditor/releases/tag/release02)) 
 
 ## ☕ Support the Project
 
