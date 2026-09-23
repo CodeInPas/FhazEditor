@@ -1652,7 +1652,7 @@ begin
 
   NewEditor.PopupMenu := popEditor;
 
-  NewEditor.Options := [eoAutoIndent, eoGroupUndo, eoScrollPastEol, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces];
+  NewEditor.Options := [eoAutoIndent, eoGroupUndo, eoScrollPastEol, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces, eoTabIndent];
   NewEditor.Gutter.Width := 57;
   NewEditor.RightEdge := 0;
 
