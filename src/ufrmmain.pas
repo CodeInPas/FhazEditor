@@ -45,6 +45,14 @@ type
     mnuToggleSidebar: TMenuItem;
     mnuToggleMinimap: TMenuItem;
 
+    MenuItemViewSep2: TMenuItem;
+    mnuViewTerminal: TMenuItem;
+
+    // Menu Tata Letak Panel Terminal
+    mnuViewPanelPos: TMenuItem;
+    mnuPanelPosBottom: TMenuItem;
+    mnuPanelPosRight: TMenuItem;
+
     mnuToggleSplitView: TMenuItem;
     mnuMoveTabOtherPane: TMenuItem;
     MenuItem16: TMenuItem;
@@ -69,6 +77,14 @@ type
     mnuFQClearType: TMenuItem;
     mnuFQAntialiased: TMenuItem;
     mnuFQDefault: TMenuItem;
+
+    mnuGit: TMenuItem;
+    mnuGitInit: TMenuItem;
+    mnuGitStatus: TMenuItem;
+    MenuItemGitSep: TMenuItem;
+    mnuGitCommit: TMenuItem;
+    mnuGitPush: TMenuItem;
+    mnuGitPull: TMenuItem;
 
     mnuRunMenu: TMenuItem;
     mnuRunCode: TMenuItem;
@@ -104,7 +120,16 @@ type
     pnlBottomResults: TPanel;
     pnlResultsHeader: TPanel;
     btnCloseResults: TButton;
+
+    pcBottom: TPageControl;
+    tsResults: TTabSheet;
+    tsTerminal: TTabSheet;
     lbSearchResults: TListBox;
+    memoTerminal: TMemo;
+    pnlTermInput: TPanel;
+    lblPrompt: TLabel;
+    edtTerminalInput: TEdit;
+    btnKillTerminal: TButton;
 
     pnlStatus: TPanel;
     lblStats: TLabel;
@@ -144,6 +169,8 @@ type
     procedure mnuOpenFolderClick(Sender: TObject);
     procedure mnuToggleSidebarClick(Sender: TObject);
     procedure mnuToggleMinimapClick(Sender: TObject);
+    procedure mnuViewTerminalClick(Sender: TObject);
+    procedure mnuPanelPosChangeClick(Sender: TObject);
 
     procedure mnuToggleSplitViewClick(Sender: TObject);
     procedure mnuMoveTabOtherPaneClick(Sender: TObject);
@@ -162,6 +189,12 @@ type
     procedure mnuSyntaxChangeClick(Sender: TObject);
     procedure mnuFontQualityClick(Sender: TObject);
 
+    procedure mnuGitInitClick(Sender: TObject);
+    procedure mnuGitStatusClick(Sender: TObject);
+    procedure mnuGitCommitClick(Sender: TObject);
+    procedure mnuGitPushClick(Sender: TObject);
+    procedure mnuGitPullClick(Sender: TObject);
+
     procedure mnuRunCodeClick(Sender: TObject);
     procedure mnuCompilerSettingsClick(Sender: TObject);
 
@@ -170,6 +203,10 @@ type
     procedure mnuFindInFilesClick(Sender: TObject);
     procedure btnCloseResultsClick(Sender: TObject);
     procedure lbSearchResultsDblClick(Sender: TObject);
+
+    procedure btnKillTerminalClick(Sender: TObject);
+    procedure edtTerminalInputKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure TermTimerTimer(Sender: TObject);
 
     procedure popCutClick(Sender: TObject);
     procedure popCopyClick(Sender: TObject);
@@ -223,6 +260,14 @@ type
     FActivePageControl: TPageControl;
 
     FRecentFiles: TStringList;
+
+    FTermProcess: TProcess;
+    FTermTimer: TTimer;
+    FCmdHistory: TStringList;
+    FHistoryIndex: Integer;
+    procedure StartTerminal;
+    procedure StopTerminal;
+
     procedure LoadRecentFiles;
     procedure SaveRecentFiles;
     procedure AddToRecentFiles(const AFileName: string);
@@ -270,6 +315,8 @@ type
     procedure PopulateTreeNode(ParentNode: TTreeNode; const Path: string);
     function GetNodePath(Node: TTreeNode): string;
     procedure SetHightAnySyn;
+
+    procedure RunGitCommand(const AGitCmd: string);
   public
   end;
 
@@ -309,15 +356,20 @@ begin
   FMinimapDirty := False;
 
   FActivePageControl := PageControl1;
-
   FFontQuality := fqClearType;
 
   FRecentFiles := TStringList.Create;
   LoadRecentFiles;
-
   InitExplorerIcons;
 
-  // Buat folder 'autocomplete' secara otomatis jika belum ada!
+  FTermProcess := nil;
+  FTermTimer := TTimer.Create(Self);
+  FTermTimer.Interval := 50;
+  FTermTimer.Enabled := False;
+  FTermTimer.OnTimer := @TermTimerTimer;
+  FCmdHistory := TStringList.Create;
+  FHistoryIndex := -1;
+
   if not DirectoryExists(ExtractFilePath(Application.ExeName) + 'autocomplete') then
     CreateDir(ExtractFilePath(Application.ExeName) + 'autocomplete');
 
@@ -358,13 +410,8 @@ begin
   if PageControl1.PageCount = 0 then
     CreateNewTab;
 
-  // ==============================================================
-  // AKTIFKAN FITUR DRAG & DROP DARI OS
-  // ==============================================================
   AllowDropFiles := True;
   OnDropFiles := @FormDropFiles;
-  // ==============================================================
-
   CalculateStats;
 end;
 
@@ -373,6 +420,10 @@ var
   i: Integer;
   Editor: TSynEdit;
 begin
+  StopTerminal;
+  FTermTimer.Free;
+  FCmdHistory.Free;
+
   Config.WindowLeft := Self.Left;
   Config.WindowTop := Self.Top;
   Config.WindowWidth := Self.Width;
@@ -461,11 +512,10 @@ begin
     ShowMessage('Harap simpan (Save) file terlebih dahulu sebelum dijalankan.');
     Exit;
   end;
-  if Editor.Modified then mnuSaveClick(nil); // Paksa Auto-Save sebelum run
+  if Editor.Modified then mnuSaveClick(nil);
 
   Ext := LowerCase(ExtractFileExt(FilePath));
 
-  // Ambil Perintah dari File ss_runners.ini
   Ini := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'ss_runners.ini');
   try
     CmdTemplate := Ini.ReadString('Runners', Ext, '');
@@ -473,7 +523,6 @@ begin
     Ini.Free;
   end;
 
-  // Nilai Cadangan Bawaan Jika Belum Dikonfigurasi
   if CmdTemplate = '' then
   begin
     if (Ext = '.html') or (Ext = '.htm') then CmdTemplate := 'browser'
@@ -493,30 +542,25 @@ begin
     end;
   end;
 
-  // Kasus Khusus Browser
   if CmdTemplate = 'browser' then
   begin
     OpenURL('file://' + FilePath);
     Exit;
   end;
 
-  // Suntik Variabel Dinamis
   FullCmd := StringReplace(CmdTemplate, '%f', FilePath, [rfReplaceAll]);
   FullCmd := StringReplace(FullCmd, '%n', ChangeFileExt(FilePath, ''), [rfReplaceAll]);
 
-  // Siapkan Antarmuka Panel Bawah
   pnlBottomResults.Visible := True;
   Splitter3.Visible := True;
+  pcBottom.ActivePage := tsResults;
   lbSearchResults.Clear;
-  pnlResultsHeader.Caption := '  Executing: ' + FullCmd;
   Application.ProcessMessages;
 
-  // EKSEKUSI DI LATAR BELAKANG VIA TPROCESS (Zero-Bloat)
   AProcess := TProcess.Create(nil);
   MemStream := TMemoryStream.Create;
   StrList := TStringList.Create;
   try
-    // PERBAIKAN: Blok Try harus bertingkat (Nested) di Pascal!
     try
       {$IFDEF WINDOWS}
       AProcess.Executable := 'cmd.exe';
@@ -531,7 +575,6 @@ begin
       AProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole];
       AProcess.Execute;
 
-      // Tangkap Output Secara Bertahap agar Editor Tidak Freeze
       while AProcess.Running do
       begin
         if AProcess.Output.NumBytesAvailable > 0 then
@@ -544,7 +587,6 @@ begin
         Sleep(50);
       end;
 
-      // Tangkap sisa data setelah proses berhenti
       if AProcess.Output.NumBytesAvailable > 0 then
       begin
         BytesRead := AProcess.Output.NumBytesAvailable;
@@ -552,7 +594,6 @@ begin
         AProcess.Output.Read((PByte(MemStream.Memory) + MemStream.Size - BytesRead)^, BytesRead);
       end;
 
-      // Masukkan ke TListBox
       MemStream.Position := 0;
       if MemStream.Size > 0 then
       begin
@@ -561,8 +602,6 @@ begin
       end
       else
         lbSearchResults.Items.Add('[Selesai tanpa output log]');
-
-      pnlResultsHeader.Caption := Format('  Eksekusi Selesai (Exit Code: %d)', [AProcess.ExitCode]);
 
     except
       on E: Exception do
@@ -582,6 +621,195 @@ begin
     frmRunnerSettings.ShowModal;
   finally
     frmRunnerSettings.Free;
+  end;
+end;
+
+// ==========================================
+// TATA LETAK PANEL (Layout Toggle)
+// ==========================================
+
+procedure TfrmMain.mnuPanelPosChangeClick(Sender: TObject);
+begin
+  Splitter3.Visible := False; // Sembunyikan sementara agar tidak glitch
+
+  if Sender = mnuPanelPosBottom then
+  begin
+    pnlBottomResults.Align := alBottom;
+    Splitter3.Align := alBottom;
+    Splitter3.ResizeAnchor := akBottom;
+    Splitter3.Cursor := crVSplit;
+    Splitter3.Top := 0; // Paksa Splitter berada di atas Panel
+    pnlBottomResults.Height := 200;
+  end
+  else if Sender = mnuPanelPosRight then
+  begin
+    pnlBottomResults.Align := alRight;
+    Splitter3.Align := alRight;
+    Splitter3.ResizeAnchor := akRight;
+    Splitter3.Cursor := crHSplit;
+    Splitter3.Left := 0; // Paksa Splitter berada di kiri Panel
+    pnlBottomResults.Width := 400;
+  end;
+
+  if pnlBottomResults.Visible then
+    Splitter3.Visible := True;
+
+  if Sender is TMenuItem then
+    TMenuItem(Sender).Checked := True;
+end;
+
+
+// ==========================================
+// LOGIKA PSEUDO-TERMINAL INTERAKTIF
+// ==========================================
+
+procedure TfrmMain.StartTerminal;
+begin
+  if Assigned(FTermProcess) and FTermProcess.Running then Exit;
+
+  if not Assigned(FTermProcess) then
+    FTermProcess := TProcess.Create(nil);
+
+  FTermProcess.Options := [poUsePipes, poStderrToOutPut];
+  FTermProcess.ShowWindow := swoHIDE;
+
+  if FExplorerRoot <> '' then
+    FTermProcess.CurrentDirectory := ExcludeTrailingPathDelimiter(FExplorerRoot)
+  else
+    FTermProcess.CurrentDirectory := GetUserDir;
+
+  {$IFDEF WINDOWS}
+  FTermProcess.Executable := 'cmd.exe';
+  {$ELSE}
+  FTermProcess.Executable := 'bash';
+  {$ENDIF}
+
+  try
+    FTermProcess.Execute;
+    FTermTimer.Enabled := True;
+    memoTerminal.Clear;
+    memoTerminal.Append('FhazEditor Pseudo-Terminal Interactive Mode');
+    memoTerminal.Append('Working Directory: ' + FTermProcess.CurrentDirectory);
+    memoTerminal.Append('-----------------------------------------');
+  except
+    on E: Exception do
+      memoTerminal.Append('ERROR starting terminal: ' + E.Message);
+  end;
+end;
+
+procedure TfrmMain.StopTerminal;
+begin
+  FTermTimer.Enabled := False;
+  if Assigned(FTermProcess) then
+  begin
+    if FTermProcess.Running then
+      FTermProcess.Terminate(0);
+    FreeAndNil(FTermProcess);
+    memoTerminal.Append('');
+    memoTerminal.Append('[Proses Terminal Telah Dihentikan]');
+  end;
+end;
+
+procedure TfrmMain.btnKillTerminalClick(Sender: TObject);
+begin
+  StopTerminal;
+end;
+
+procedure TfrmMain.mnuViewTerminalClick(Sender: TObject);
+begin
+  pnlBottomResults.Visible := True;
+  Splitter3.Visible := True;
+  pcBottom.ActivePage := tsTerminal;
+  StartTerminal;
+  edtTerminalInput.SetFocus;
+end;
+
+procedure TfrmMain.TermTimerTimer(Sender: TObject);
+var
+  Buffer: array[0..2047] of Byte;
+  BytesRead: Integer;
+  OutputStr: string;
+begin
+  if not Assigned(FTermProcess) then Exit;
+
+  if FTermProcess.Output.NumBytesAvailable > 0 then
+  begin
+    BytesRead := FTermProcess.Output.Read(Buffer, SizeOf(Buffer));
+    if BytesRead > 0 then
+    begin
+      SetString(OutputStr, PChar(@Buffer[0]), BytesRead);
+      memoTerminal.SelStart := Length(memoTerminal.Text);
+      memoTerminal.SelText := OutputStr;
+      memoTerminal.SelStart := Length(memoTerminal.Text);
+    end;
+  end;
+
+  if not FTermProcess.Running and (FTermProcess.Output.NumBytesAvailable = 0) then
+  begin
+    StopTerminal;
+  end;
+end;
+
+procedure TfrmMain.edtTerminalInputKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  Cmd: string;
+begin
+  if Key = VK_RETURN then
+  begin
+    Cmd := edtTerminalInput.Text;
+    if Trim(Cmd) <> '' then
+    begin
+      FCmdHistory.Add(Cmd);
+      FHistoryIndex := FCmdHistory.Count;
+    end;
+
+    if Trim(LowerCase(Cmd)) = 'clear' then
+    begin
+      memoTerminal.Clear;
+      edtTerminalInput.Clear;
+      Key := 0;
+      Exit;
+    end;
+
+    {$IFDEF WINDOWS}
+    Cmd := Cmd + #13#10;
+    {$ELSE}
+    Cmd := Cmd + #10;
+    {$ENDIF}
+
+    if not (Assigned(FTermProcess) and FTermProcess.Running) then
+      StartTerminal;
+
+    if Assigned(FTermProcess) and FTermProcess.Running then
+      FTermProcess.Input.Write(Cmd[1], Length(Cmd));
+
+    edtTerminalInput.Clear;
+    Key := 0;
+  end
+  else if Key = VK_UP then
+  begin
+    if FHistoryIndex > 0 then
+    begin
+      Dec(FHistoryIndex);
+      edtTerminalInput.Text := FCmdHistory[FHistoryIndex];
+      edtTerminalInput.SelStart := Length(edtTerminalInput.Text);
+    end;
+    Key := 0;
+  end
+  else if Key = VK_DOWN then
+  begin
+    if FHistoryIndex < FCmdHistory.Count - 1 then
+    begin
+      Inc(FHistoryIndex);
+      edtTerminalInput.Text := FCmdHistory[FHistoryIndex];
+    end
+    else
+    begin
+      FHistoryIndex := FCmdHistory.Count;
+      edtTerminalInput.Text := '';
+    end;
+    edtTerminalInput.SelStart := Length(edtTerminalInput.Text);
+    Key := 0;
   end;
 end;
 
@@ -773,7 +1001,6 @@ begin
         begin
           if IsTextFile(FilePath) then
           begin
-            pnlResultsHeader.Caption := '  Mencari di: ' + ExtractFileName(FilePath) + '...';
             Application.ProcessMessages;
 
             FList := TStringList.Create;
@@ -817,14 +1044,12 @@ begin
 
   pnlBottomResults.Visible := True;
   Splitter3.Visible := True;
+  pcBottom.ActivePage := tsResults;
   lbSearchResults.Clear;
 
-  pnlResultsHeader.Caption := '  Mencari...';
   Application.ProcessMessages;
 
   SearchInFolder(FExplorerRoot, Keyword);
-
-  pnlResultsHeader.Caption := '  Pencarian selesai. Ditemukan ' + IntToStr(lbSearchResults.Count) + ' baris di seluruh proyek.';
 end;
 
 procedure TfrmMain.btnCloseResultsClick(Sender: TObject);
@@ -1382,18 +1607,13 @@ begin
   Editor := TSynEdit(Comp.Editor);
   if not Assigned(Editor) then Exit;
 
-  // Gunakan TempList yang bersifat Sorted & dupIgnore agar Instan
-  // memfilter ribuan kata duplikat dalam dokumen!
   TempList := TStringList.Create;
   try
     TempList.Sorted := True;
     TempList.Duplicates := dupIgnore;
 
-    // ----------------------------------------------------
-    // IDE 1: Muat Kamus Eksternal
-    // ----------------------------------------------------
     Ext := LowerCase(ExtractFileExt(FSessionManager.GetFileName(Editor)));
-    if Ext <> '' then Delete(Ext, 1, 1); // Hapus awalan titik (.py -> py)
+    if Ext <> '' then Delete(Ext, 1, 1);
     if Ext = '' then Ext := 'txt';
 
     DictPath := ExtractFilePath(Application.ExeName) + 'autocomplete' + DirectorySeparator + Ext + '.txt';
@@ -1401,7 +1621,6 @@ begin
       TempList.LoadFromFile(DictPath)
     else
     begin
-      // Fallback Default jika file txt tidak ditemukan
       if Editor.Highlighter = FSynPas then
         TempList.CommaText := 'begin,class,const,constructor,destructor,do,else,end,for,function,if,implementation,interface,procedure,repeat,string,then,try,type,until,uses,var,while'
       else if Editor.Highlighter = FSynPython then
@@ -1422,27 +1641,21 @@ begin
         TempList.CommaText := 'break,default,func,interface,select,case,defer,go,map,struct,chan,else,goto,package,switch,const,fallthrough,if,range,type,continue,for,import,return,var';
     end;
 
-    // ----------------------------------------------------
-    // IDE 2: Parser Variabel di Layar Secara Real-Time
-    // ----------------------------------------------------
     S := Editor.Text;
     Len := Length(S);
     WordStr := '';
     for i := 1 to Len do
     begin
-      // Jika karakter adalah huruf, angka, atau underscore
       if S[i] in ['a'..'z', 'A'..'Z', '0'..'9', '_'] then
         WordStr := WordStr + S[i]
       else
       begin
-        // Masukkan kata jika panjangnya >= 3 karakter
         if Length(WordStr) >= 3 then TempList.Add(WordStr);
         WordStr := '';
       end;
     end;
-    if Length(WordStr) >= 3 then TempList.Add(WordStr); // Tangkap sisa kata terakhir
+    if Length(WordStr) >= 3 then TempList.Add(WordStr);
 
-    // Terapkan gabungan sempurna ini ke layar!
     Comp.ItemList.BeginUpdate;
     try
       Comp.ItemList.Assign(TempList);
@@ -1672,7 +1885,6 @@ begin
   if Config.LineEnding = leCRLF then NewEditor.Lines.LineBreak := #13#10 else NewEditor.Lines.LineBreak := #10;
   TVisualTheme.ApplySynEditTheme(NewEditor, Config.Theme);
 
-  // PENYISIPAN KECERDASAN AUTOCOMPLETE DI SINI!
   NewComp := TSynCompletion.Create(NewTab);
   NewComp.Editor := NewEditor;
   NewComp.ShortCut := Menus.ShortCut(VK_SPACE, [ssCtrl]);
@@ -1767,7 +1979,7 @@ begin
   TVisualTheme.ApplyHighlighterTheme(FSynCSS, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FSynPython, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FSynSQL, Config.Theme);
-  TVisualTheme.ApplyHighlighterTheme(FSynPHP, Config.Theme); // Diterapkan pada Tema
+  TVisualTheme.ApplyHighlighterTheme(FSynPHP, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FCppSyn, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FSynCSharp, Config.Theme);
   TVisualTheme.ApplyHighlighterTheme(FSynRust, Config.Theme);
@@ -2075,7 +2287,6 @@ begin
   if frWholeWord in dlgFind.Options then Include(SearchOptions, ssoWholeWord);
   if not (frDown in dlgFind.Options) then Include(SearchOptions, ssoBackwards);
 
-  // Tangkap Checkbox "Search entire file"
   if frEntireScope in dlgFind.Options then Include(SearchOptions, ssoEntireScope);
 
   if Editor.SearchReplace(dlgFind.FindText, '', SearchOptions) = 0 then
@@ -2095,22 +2306,18 @@ begin
   if frWholeWord in dlgReplace.Options then Include(SearchOptions, ssoWholeWord);
   if not (frDown in dlgReplace.Options) then Include(SearchOptions, ssoBackwards);
 
-  // Tangkap Checkbox "Search entire file"
   if frEntireScope in dlgReplace.Options then Include(SearchOptions, ssoEntireScope);
 
-  // Jika tombol "Replace All" ditekan
   if frReplaceAll in dlgReplace.Options then
   begin
     Include(SearchOptions, ssoReplaceAll);
-
-    // TRIK JITU: Pindahkan kursor secara paksa ke Baris 1, Kolom 1
-    // agar SynEdit memindai dan mengganti dari awal dokumen tanpa terlewat!
     Editor.CaretXY := Point(1, 1);
   end;
 
   if Editor.SearchReplace(dlgReplace.FindText, dlgReplace.ReplaceText, SearchOptions) = 0 then
     ShowMessage('Selesai. Teks tidak ditemukan lagi atau sudah diganti semua.');
 end;
+
 procedure TfrmMain.mnuDistractionFreeClick(Sender: TObject);
 begin
   FDistractionFree := not FDistractionFree;
@@ -2351,57 +2558,139 @@ end;
 
 procedure TfrmMain.SetHightAnySyn;
 begin
-  // ==========================================
-  // SETUP CUSTOM HIGHLIGHTER (DART)
-  // ==========================================
   FSynDart := TSynAnySyn.Create(Self);
   FSynDart.Name:= 'Dart';
-  // Daftar Keyword Utama Dart
   FSynDart.KeyWords.CommaText := 'abstract,as,assert,async,await,break,case,catch,class,const,continue,covariant,default,deferred,do,dynamic,else,enum,export,extends,extension,external,factory,false,final,finally,for,Function,get,if,implements,import,in,interface,is,late,library,mixin,new,null,on,operator,part,required,rethrow,return,set,show,static,super,switch,sync,this,throw,true,try,typedef,var,void,while,with,yield';
-  // Daftar Tipe Data / Objek Dart
   FSynDart.Objects.CommaText := 'String,int,double,bool,num,List,Set,Map,Iterable,Future,Stream,Widget,StatelessWidget,StatefulWidget';
-  // Secara otomatis TSynAnySyn akan mewarnai string ("" atau '') dan komentar (// atau /* */) ala keluarga bahasa C/Java.
-
-  // ==========================================
-  // SETUP CUSTOM HIGHLIGHTER (GOLANG)
-  // ==========================================
 
   FSynGo := TSynAnySyn.Create(Self);
   FSynGo.Name := 'Go';
-  // Daftar 25 Keyword Utama Go
   FSynGo.KeyWords.CommaText := 'break,case,chan,const,continue,default,defer,else,fallthrough,for,func,go,goto,if,import,interface,map,package,range,return,select,struct,switch,type,var';
-  // Daftar Tipe Data Dasar, Konstanta Baku, dan Fungsi Built-in Go
   FSynGo.Objects.CommaText := 'bool,byte,complex64,complex128,error,float32,float64,int,int8,int16,int32,int64,rune,string,uint,uint8,uint16,uint32,uint64,uintptr,true,false,iota,nil,append,cap,close,complex,copy,delete,imag,len,make,new,panic,print,println,real,recover';
-  // Secara otomatis TSynAnySyn akan mewarnai string ("" atau ``) dan komentar (// atau /* */) ala Go.
-
-  // ==========================================
-  // SETUP CUSTOM HIGHLIGHTER (C#)
-  // ========================================
 
   FSynCSharp := TSynAnySyn.Create(Self);
   FSynCSharp.Name := 'CSharp';
-
-  // Daftar Keyword Utama dan Contextual Keyword C#
   FSynCSharp.KeyWords.CommaText := 'abstract,add,alias,as,async,await,base,break,case,catch,checked,class,const,continue,default,delegate,do,else,enum,event,explicit,extern,false,finally,fixed,for,foreach,get,global,goto,if,implicit,in,interface,internal,is,lock,namespace,new,null,operator,out,override,params,partial,private,protected,public,readonly,ref,remove,return,sealed,set,sizeof,stackalloc,static,struct,switch,this,throw,true,try,typeof,unchecked,unsafe,using,value,var,virtual,void,volatile,where,while,yield';
-
-  // Daftar Tipe Data Primitif dan Objek/Class Umum .NET
   FSynCSharp.Objects.CommaText := 'bool,byte,char,decimal,double,dynamic,float,int,long,object,sbyte,short,string,uint,ulong,ushort,Console,Exception,Task,Thread,List,Dictionary,IEnumerable,Action,Func,DateTime,Math,Convert';
-
-  // ==========================================
-  // SETUP CUSTOM HIGHLIGHTER (RUST)
-  // ========================================
 
   FSynRust := TSynAnySyn.Create(Self);
   FSynRust.Name := 'Rust';
-
-  // Daftar Keyword Utama Rust (termasuk edisi modern 2018+)
   FSynRust.KeyWords.CommaText := 'as,async,await,break,const,continue,crate,dyn,else,enum,extern,false,fn,for,if,impl,in,let,loop,match,mod,move,mut,pub,ref,return,self,Self,static,struct,super,trait,true,type,unsafe,use,where,while';
-
-  // Daftar Tipe Data Skalar, Tipe Pointer, dan Enum/Struct Standar Bawaan Rust
   FSynRust.Objects.CommaText := 'bool,char,f32,f64,i8,i16,i32,i64,i128,isize,u8,u16,u32,u64,u128,usize,str,String,Option,Result,Some,None,Ok,Err,Vec,Box,Rc,Arc,Cell,RefCell';
+end;
 
-  // TSynAnySyn akan secara otomatis menangani pewarnaan string dan komentar (// atau /* */) ala C/Rust.
+// ==========================================
+// LOGIKA ZERO-BLOAT GIT INTEGRATION
+// ==========================================
 
+procedure TfrmMain.RunGitCommand(const AGitCmd: string);
+var
+  AProcess: TProcess;
+  MemStream: TMemoryStream;
+  StrList: TStringList;
+  BytesRead: LongInt;
+  ProjectDir, FullCmd: string;
+begin
+  if FExplorerRoot = '' then
+  begin
+    ShowMessage('Silakan buka folder proyek terlebih dahulu (File -> Open Folder) untuk menggunakan fitur Git.');
+    Exit;
+  end;
+
+  ProjectDir := ExcludeTrailingPathDelimiter(FExplorerRoot);
+
+  pnlBottomResults.Visible := True;
+  Splitter3.Visible := True;
+  pcBottom.ActivePage := tsResults;
+  lbSearchResults.Clear;
+  Application.ProcessMessages;
+
+  AProcess := TProcess.Create(nil);
+  MemStream := TMemoryStream.Create;
+  StrList := TStringList.Create;
+  try
+    AProcess.CurrentDirectory := ProjectDir;
+
+    {$IFDEF WINDOWS}
+    AProcess.Executable := 'cmd.exe';
+    AProcess.Parameters.Add('/c');
+    FullCmd := AGitCmd;
+    {$ELSE}
+    AProcess.Executable := 'sh';
+    AProcess.Parameters.Add('-c');
+    FullCmd := AGitCmd;
+    {$ENDIF}
+
+    AProcess.Parameters.Add(FullCmd);
+    AProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole];
+    AProcess.Execute;
+
+    while AProcess.Running do
+    begin
+      if AProcess.Output.NumBytesAvailable > 0 then
+      begin
+        BytesRead := AProcess.Output.NumBytesAvailable;
+        MemStream.SetSize(MemStream.Size + BytesRead);
+        AProcess.Output.Read((PByte(MemStream.Memory) + MemStream.Size - BytesRead)^, BytesRead);
+      end;
+      Application.ProcessMessages;
+      Sleep(50);
+    end;
+
+    if AProcess.Output.NumBytesAvailable > 0 then
+    begin
+      BytesRead := AProcess.Output.NumBytesAvailable;
+      MemStream.SetSize(MemStream.Size + BytesRead);
+      AProcess.Output.Read((PByte(MemStream.Memory) + MemStream.Size - BytesRead)^, BytesRead);
+    end;
+
+    MemStream.Position := 0;
+    if MemStream.Size > 0 then
+    begin
+      StrList.LoadFromStream(MemStream);
+      lbSearchResults.Items.Assign(StrList);
+    end
+    else
+      lbSearchResults.Items.Add('[Perintah Git selesai dijalankan]');
+
+  except
+    on E: Exception do
+      lbSearchResults.Items.Add('GIT ERROR: ' + E.Message + #13#10 + 'Pastikan Git sudah terinstal di sistem Anda.');
+  end;
+    StrList.Free;
+    MemStream.Free;
+    AProcess.Free;
+end;
+
+procedure TfrmMain.mnuGitInitClick(Sender: TObject);
+begin
+  RunGitCommand('git init');
+end;
+
+procedure TfrmMain.mnuGitStatusClick(Sender: TObject);
+begin
+  RunGitCommand('git status');
+end;
+
+procedure TfrmMain.mnuGitCommitClick(Sender: TObject);
+var
+  CommitMsg: string;
+begin
+  CommitMsg := InputBox('Git Commit', 'Masukkan pesan commit:', 'Update proyek');
+  if Trim(CommitMsg) <> '' then
+  begin
+    RunGitCommand('git add . && git commit -m "' + CommitMsg + '"');
+  end;
+end;
+
+procedure TfrmMain.mnuGitPushClick(Sender: TObject);
+begin
+  RunGitCommand('git push');
+end;
+
+procedure TfrmMain.mnuGitPullClick(Sender: TObject);
+begin
+  RunGitCommand('git pull');
 end;
 
 end.

@@ -9,7 +9,7 @@
         <IsPartOfProject Value="True"/>
         <TopLine Value="21"/>
         <CursorPos Y="54"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -21,9 +21,9 @@
         <UnitName Value="ufrmMain"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="2243"/>
-        <CursorPos X="5" Y="2275"/>
-        <UsageCount Value="31"/>
+        <TopLine Value="2667"/>
+        <CursorPos X="5" Y="2696"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -33,48 +33,48 @@
         <ComponentName Value="frmPreferences"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="102"/>
         <CursorPos X="5" Y="127"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="uAppConfig.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="150"/>
         <CursorPos X="5" Y="178"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="uVisualOperatorTheme.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="10"/>
         <CursorPos X="40" Y="12"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="uSessionManager.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="225"/>
         <CursorPos X="25" Y="242"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="uaiassistant.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uAIAssistant"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="145"/>
         <CursorPos X="5" Y="175"/>
-        <UsageCount Value="30"/>
+        <UsageCount Value="35"/>
         <Loaded Value="True"/>
       </Unit6>
       <Unit7>
@@ -84,10 +84,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ufrmSplash"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="13"/>
         <CursorPos Y="27"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="26"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit7>
@@ -99,9 +99,9 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ufrmAbout"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="26"/>
+        <TopLine Value="27"/>
         <CursorPos X="5" Y="58"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="26"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit8>
@@ -112,27 +112,28 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ufrmRunnerSettings"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="70"/>
         <CursorPos X="5" Y="93"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="26"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="ufrmMain.lfm"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="529"/>
-        <CursorPos X="4" Y="559"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="684"/>
+        <CursorPos X="4" Y="714"/>
         <UsageCount Value="15"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit10>
       <Unit11>
         <Filename Value="ufrmPreferences.lfm"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="195"/>
         <CursorPos X="4" Y="223"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="17"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit11>
@@ -155,7 +156,7 @@
         <EditorIndex Value="2"/>
         <TopLine Value="26"/>
         <CursorPos X="4" Y="58"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="13"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit14>
@@ -171,123 +172,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1392" Column="23" TopLine="1381"/>
+        <Caret Line="2240" Column="21" TopLine="2234"/>
       </Position1>
       <Position2>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1567" Column="20" TopLine="1563"/>
+        <Caret Line="2275" Column="5" TopLine="2246"/>
       </Position2>
       <Position3>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1639" Column="28" TopLine="1631"/>
+        <Caret Line="2053" Column="5" TopLine="2018"/>
       </Position3>
       <Position4>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1803" Column="5" TopLine="1774"/>
+        <Caret Line="2037" Column="41" TopLine="2025"/>
       </Position4>
       <Position5>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1785" Column="26" TopLine="1774"/>
+        <Caret Line="208" Column="5" TopLine="198"/>
       </Position5>
       <Position6>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1913" Column="27" TopLine="1901"/>
+        <Caret Line="11" Column="78"/>
       </Position6>
       <Position7>
-        <Filename Value="ufrmsplash.pas"/>
-        <Caret Line="43" Column="5" TopLine="14"/>
+        <Filename Value="ufrmmain.pas"/>
+        <Caret Line="15" Column="45"/>
       </Position7>
       <Position8>
-        <Filename Value="ufrmsplash.pas"/>
-        <Caret Line="27" Column="29" TopLine="14"/>
+        <Filename Value="ufrmmain.pas"/>
+        <Caret Line="1423" TopLine="1403"/>
       </Position8>
       <Position9>
-        <Filename Value="ufrmabout.pas"/>
-        <Caret Line="58" Column="5" TopLine="29"/>
+        <Filename Value="ufrmmain.pas"/>
+        <Caret Line="70" Column="5" TopLine="56"/>
       </Position9>
       <Position10>
-        <Filename Value="ufrmabout.lfm"/>
-        <Caret Line="8" Column="35"/>
+        <Filename Value="ufrmmain.pas"/>
+        <Caret Line="69" Column="5" TopLine="55"/>
       </Position10>
       <Position11>
-        <Filename Value="ufrmabout.pas"/>
-        <Caret Line="58" Column="5" TopLine="29"/>
+        <Filename Value="ufrmmain.pas"/>
+        <Caret Line="71" Column="5" TopLine="55"/>
       </Position11>
       <Position12>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1960" Column="56" TopLine="1946"/>
+        <Caret Line="220" Column="5" TopLine="207"/>
       </Position12>
       <Position13>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1959" Column="56" TopLine="1945"/>
+        <Caret Line="66" TopLine="62"/>
       </Position13>
       <Position14>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1960" Column="56" TopLine="1946"/>
+        <Caret Line="218" Column="23" TopLine="213"/>
       </Position14>
       <Position15>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1967" Column="56" TopLine="1953"/>
+        <Caret Line="300" Column="23" TopLine="284"/>
       </Position15>
       <Position16>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="401" Column="46" TopLine="383"/>
+        <Caret Line="1420" Column="9" TopLine="1397"/>
       </Position16>
       <Position17>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="13" Column="42"/>
+        <Caret Line="1418" Column="100" TopLine="1405"/>
       </Position17>
       <Position18>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="386" TopLine="383"/>
+        <Caret Line="2376" Column="34" TopLine="2362"/>
       </Position18>
       <Position19>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1961" Column="20" TopLine="1946"/>
+        <Caret Line="2389" Column="37" TopLine="2373"/>
       </Position19>
       <Position20>
-        <Filename Value="ufrmmain.pas"/>
-        <Caret Line="392" Column="19" TopLine="386"/>
+        <Filename Value="ufrmMain.lfm"/>
+        <Caret Line="544" Column="48" TopLine="529"/>
       </Position20>
       <Position21>
-        <Filename Value="ufrmrunnersettings.pas"/>
-        <Caret Line="152" Column="5" TopLine="123"/>
+        <Filename Value="ufrmmain.pas"/>
+        <Caret Line="1639" Column="25" TopLine="1637"/>
       </Position21>
       <Position22>
-        <Filename Value="ufrmmain.pas"/>
-        <Caret Line="2070" Column="26" TopLine="2057"/>
+        <Filename Value="ufrmMain.lfm"/>
+        <Caret Line="612" Column="4" TopLine="582"/>
       </Position22>
       <Position23>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="2226" Column="5" TopLine="2197"/>
+        <Caret Line="1639" Column="21" TopLine="1624"/>
       </Position23>
       <Position24>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="537" Column="4" TopLine="521"/>
+        <Caret Line="2398" Column="33" TopLine="2379"/>
       </Position24>
       <Position25>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="541" Column="5" TopLine="522"/>
+        <Caret Line="2542" Column="5" TopLine="2513"/>
       </Position25>
       <Position26>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1777" Column="34" TopLine="1750"/>
+        <Caret Line="2503" Column="3" TopLine="2488"/>
       </Position26>
       <Position27>
-        <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1776" Column="34" TopLine="1749"/>
+        <Filename Value="ufrmMain.lfm"/>
+        <Caret Line="612" Column="4" TopLine="582"/>
       </Position27>
       <Position28>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="1758" Column="25" TopLine="1750"/>
+        <Caret Line="2507" TopLine="2490"/>
       </Position28>
       <Position29>
-        <Filename Value="ufrmmain.pas"/>
-        <Caret Line="2240" Column="21" TopLine="2234"/>
+        <Filename Value="ufrmMain.lfm"/>
+        <Caret Line="679" Column="41" TopLine="666"/>
       </Position29>
       <Position30>
         <Filename Value="ufrmmain.pas"/>
-        <Caret Line="2275" Column="5" TopLine="2246"/>
+        <Caret Line="2687" Column="29" TopLine="2681"/>
       </Position30>
     </JumpHistory>
     <RunParams>

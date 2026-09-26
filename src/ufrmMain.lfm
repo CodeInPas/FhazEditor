@@ -3,7 +3,7 @@ object frmMain: TfrmMain
   Height = 600
   Top = 150
   Width = 800
-  Caption = 'S.s'
+  Caption = 'FhazEditor'
   ClientHeight = 600
   ClientWidth = 800
   Menu = MainMenu1
@@ -147,7 +147,7 @@ object frmMain: TfrmMain
       Align = alTop
       Alignment = taLeftJustify
       BevelOuter = bvNone
-      Caption = '  Output / Search Results'
+      Caption = '  FhazEditor Outputs'
       ClientHeight = 25
       ClientWidth = 800
       Color = clBtnFace
@@ -165,15 +165,93 @@ object frmMain: TfrmMain
         OnClick = btnCloseResultsClick
       end
     end
-    object lbSearchResults: TListBox
+    object pcBottom: TPageControl
       Left = 0
       Height = 125
       Top = 25
       Width = 800
+      ActivePage = tsResults
       Align = alClient
-      ItemHeight = 0
+      TabIndex = 0
       TabOrder = 1
-      OnDblClick = lbSearchResultsDblClick
+      object tsResults: TTabSheet
+        Caption = 'Search / Exec Output'
+        ClientHeight = 97
+        ClientWidth = 792
+        object lbSearchResults: TListBox
+          Left = 0
+          Height = 97
+          Top = 0
+          Width = 792
+          Align = alClient
+          ItemHeight = 0
+          TabOrder = 0
+          OnDblClick = lbSearchResultsDblClick
+        end
+      end
+      object tsTerminal: TTabSheet
+        Caption = 'Terminal'
+        ClientHeight = 97
+        ClientWidth = 792
+        object pnlTermInput: TPanel
+          Left = 0
+          Height = 25
+          Top = 72
+          Width = 792
+          Align = alBottom
+          BevelOuter = bvNone
+          ClientHeight = 25
+          ClientWidth = 792
+          TabOrder = 1
+          object lblPrompt: TLabel
+            Left = 0
+            Height = 25
+            Top = 0
+            Width = 20
+            Align = alLeft
+            Alignment = taCenter
+            Caption = ' > '
+            Layout = tlCenter
+          end
+          object edtTerminalInput: TEdit
+            Left = 20
+            Height = 25
+            Top = 0
+            Width = 722
+            Align = alClient
+            Color = 4210752
+            Font.Color = clWhite
+            Font.Name = 'Consolas'
+            ParentFont = False
+            TabOrder = 0
+            OnKeyDown = edtTerminalInputKeyDown
+          end
+          object btnKillTerminal: TButton
+            Left = 742
+            Height = 25
+            Top = 0
+            Width = 50
+            Align = alRight
+            Caption = 'Stop'
+            TabOrder = 1
+            OnClick = btnKillTerminalClick
+          end
+        end
+        object memoTerminal: TMemo
+          Left = 0
+          Height = 72
+          Top = 0
+          Width = 792
+          Align = alClient
+          Color = 3026478
+          Font.Color = 13816530
+          Font.Name = 'Consolas'
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+      end
     end
   end
   object pnlStatus: TPanel
@@ -299,6 +377,32 @@ object frmMain: TfrmMain
         ShortCut = 16461
         OnClick = mnuToggleMinimapClick
       end
+      object MenuItemViewSep2: TMenuItem
+        Caption = '-'
+      end
+      object mnuViewTerminal: TMenuItem
+        Caption = 'Toggle &Terminal'
+        ShortCut = 16464
+        OnClick = mnuViewTerminalClick
+      end
+      object mnuViewPanelPos: TMenuItem
+        Caption = 'Terminal / Output Layout'
+        object mnuPanelPosBottom: TMenuItem
+          AutoCheck = True
+          Caption = 'Tile Horizontally (Bottom)'
+          Checked = True
+          GroupIndex = 3
+          RadioItem = True
+          OnClick = mnuPanelPosChangeClick
+        end
+        object mnuPanelPosRight: TMenuItem
+          AutoCheck = True
+          Caption = 'Tile Vertically (Right)'
+          GroupIndex = 3
+          RadioItem = True
+          OnClick = mnuPanelPosChangeClick
+        end
+      end
       object MenuItem5: TMenuItem
         Caption = '-'
       end
@@ -407,6 +511,12 @@ object frmMain: TfrmMain
           RadioItem = True
           OnClick = mnuSyntaxChangeClick
         end
+        object mnuSynPHP: TMenuItem
+          AutoCheck = True
+          Caption = 'PHP'
+          GroupIndex = 1
+          RadioItem = True
+        end
         object mnuSynSQL: TMenuItem
           AutoCheck = True
           Caption = 'SQL'
@@ -414,6 +524,47 @@ object frmMain: TfrmMain
           RadioItem = True
           OnClick = mnuSyntaxChangeClick
         end
+        object MenuItem1: TMenuItem
+          Caption = 'Dart'
+        end
+        object mnuSynRust: TMenuItem
+          Caption = 'Rust'
+        end
+        object mnuSynGo: TMenuItem
+          Caption = 'Go'
+        end
+        object mnuSynCpp: TMenuItem
+          Caption = 'C++'
+        end
+        object mnuSynCS: TMenuItem
+          Caption = 'C# .NET'
+        end
+      end
+    end
+    object mnuGit: TMenuItem
+      Caption = '&Git'
+      object mnuGitInit: TMenuItem
+        Caption = 'Initialize Repository'
+        OnClick = mnuGitInitClick
+      end
+      object mnuGitStatus: TMenuItem
+        Caption = 'Git Status'
+        OnClick = mnuGitStatusClick
+      end
+      object MenuItemGitSep: TMenuItem
+        Caption = '-'
+      end
+      object mnuGitCommit: TMenuItem
+        Caption = 'Add All && Commit...'
+        OnClick = mnuGitCommitClick
+      end
+      object mnuGitPush: TMenuItem
+        Caption = 'Git Push'
+        OnClick = mnuGitPushClick
+      end
+      object mnuGitPull: TMenuItem
+        Caption = 'Git Pull'
+        OnClick = mnuGitPullClick
       end
     end
     object mnuRunMenu: TMenuItem
