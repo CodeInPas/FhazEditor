@@ -4,12 +4,15 @@ Built natively with Lazarus/FPC — blazingly fast, minimal footprint, 100% bloa
 <img width="1363" height="684" alt="sseditor" src="https://github.com/user-attachments/assets/137bd27b-b4c9-4ce0-9740-edf89f1a7207" />
 
 
+A blazing-fast, zero-bloat native IDE built for speed and efficiency. FhazEditor combines the instant startup of a minimalist text editor with the powerful features of a modern development environment, completely free from the heavy memory footprint of Electron-based applications.
 
-> **Blazingly fast, lightweight, and bloatware-free desktop application.**
+Core Features:
+• Universal Code Runner for instant execution
+• Smart Hybrid Autocomplete
+• Interactive Pseudo-Terminal
+• Native Git Integration
+• Multi-Language Support (C++, Go, Rust, C#, Pascal, Python, and more)
 
-Built natively using **Lazarus & Free Pascal Compiler (FPC)**, `FhazEditor` delivers maximum performance directly to your machine. With zero runtime bloat, minimal memory consumption, and no reliance on heavy virtual machines or browser runtimes, it provides an instant-response, highly efficient workflow.
-
----
 
 ## ⚡ Key Highlights
 
